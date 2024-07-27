@@ -19,4 +19,12 @@ print("database url", DATABASE_URL)
 engine = create_engine(DATABASE_URL)
 new_session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+def create_new_session():
+    session = new_session()
+    try:
+        yield session
+    finally:
+        session.close()
+
+
 Base = declarative_base()

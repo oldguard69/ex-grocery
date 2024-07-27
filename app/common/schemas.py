@@ -29,3 +29,25 @@ class ProductDto(BaseModel):
     class Config:
         orm_mode: True
 # endregion
+
+
+class RoleDto(BaseModel):
+    role_id: int
+    description: str
+
+
+class UserDto(BaseModel):
+    user_id: int
+    email: str
+    role: RoleDto
+    success_order_count: int
+
+
+class LoginDto(BaseModel):
+    email: str
+    password: str
+
+
+class RegisterDto(BaseModel):
+    email: str
+    password: str
