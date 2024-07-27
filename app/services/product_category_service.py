@@ -1,8 +1,8 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ..models import ProductCategory
-from ..schemas import ProductCategoryDto, ProductCategoryCreateDto
+from app.common.models import ProductCategory
+from app.common.schemas import ProductCategoryDto, ProductCategoryCreateDto
 
 
 def create_product_category(

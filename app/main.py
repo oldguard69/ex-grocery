@@ -1,8 +1,9 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 
-from . import models, schemas
-from .database import engine, new_session
+from .common import models
+from .common import schemas
+from .common.database import engine, new_session
 from .services import product_category_service, product_service
 
 
