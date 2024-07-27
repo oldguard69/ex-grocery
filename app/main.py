@@ -11,8 +11,6 @@ from .services import product_category_service, product_service, user_service
 models.Base.metadata.create_all(engine)
 
 
-
-
 app = FastAPI()
 
 
@@ -44,8 +42,7 @@ def get_user(
 
 @app.get("/product-categories/", response_model=list[schemas.ProductCategoryDto])
 def list_product_categories(session: Session = Depends(create_new_session)):
-    prod_categories = product_category_service.list_product_categories(session)
-    return prod_categories
+    return product_category_service.list_product_categories(session)
 
 
 @app.post("/product-categories/")
@@ -61,3 +58,28 @@ def list_products(
     session: Session = Depends(create_new_session),
 ):
     return product_service.list_products(session)
+
+
+@app.get("/products/{product_id}", response_model=schemas.ProductDto)
+def get_product(
+    product_id: int,
+    session: Session = Depends(create_new_session),
+):
+    return product_service.get_product(session, product_id)
+
+
+@app.post("/products/", response_model=schemas.ProductDto)
+def create_product(
+    product: schemas.ProductCreateUpdateDto,
+    session: Session = Depends(create_new_session),
+):
+    return product_service.create_product(session, product)
+
+
+@app.put("/products/{product_id}", response_model=schemas.ProductDto)
+def update_product(
+    product_id: int,
+    product: schemas.ProductCreateUpdateDto,
+    session: Session = Depends(create_new_session),
+):
+    return product_service.update_product(session, product_id, product)

@@ -18,6 +18,13 @@ class ProductCategoryDto(BaseModel):
 
 
 # region Product
+class ProductCreateUpdateDto(BaseModel):
+    name: str
+    description: str = ""
+    price: float
+    product_category_ids: list[int]
+
+
 class ProductDto(BaseModel):
     product_id: int
     name: str
@@ -31,6 +38,7 @@ class ProductDto(BaseModel):
 # endregion
 
 
+# region User
 class RoleDto(BaseModel):
     role_id: int
     description: str
@@ -51,3 +59,4 @@ class LoginDto(BaseModel):
 class RegisterDto(BaseModel):
     email: str
     password: str
+# endregion User
