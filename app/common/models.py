@@ -134,6 +134,7 @@ class Order(Base):
 
     customer: Mapped[User] = relationship("User")
     discount: Mapped["Discount"] = relationship("Discount")
+    items: Mapped[list["OrderItem"]] = relationship(viewonly=True)
 
 
 class OrderItem(Base):

@@ -1,18 +1,18 @@
-from sqlalchemy import select, delete
-from sqlalchemy.orm import Session, selectinload
 from fastapi import HTTPException, status
+from sqlalchemy import delete, select
+from sqlalchemy.orm import Session, selectinload
 
 from app.common.models import Product, ProductCategory, ProductProductCategory
 from app.common.schemas import ProductCreateUpdateDto
 
 
-def list_products(session: Session):
+def list_products(session: Session) -> list[Product]:
     return session.scalars(
         select(Product).options(selectinload(Product.product_categories))
     )
 
 
-def get_product(session: Session, product_id: int):
+def get_product(session: Session, product_id: int) -> Product:
     product = session.scalar(select(Product).where(Product.product_id == product_id))
     if not product:
         raise HTTPException(
@@ -23,7 +23,7 @@ def get_product(session: Session, product_id: int):
 
 def _check_invalid_product_category_ids(
     session: Session, product: ProductCreateUpdateDto
-):
+) -> None:
     db_product_category_ids = session.scalars(
         select(ProductCategory.category_id).where(
             ProductCategory.category_id.in_(product.product_category_ids)
@@ -39,7 +39,7 @@ def _check_invalid_product_category_ids(
         )
 
 
-def create_product(session: Session, product: ProductCreateUpdateDto):
+def create_product(session: Session, product: ProductCreateUpdateDto) -> Product:
     _check_invalid_product_category_ids(session, product)
     db_product = Product(
         name=product.name,
@@ -56,7 +56,7 @@ def create_product(session: Session, product: ProductCreateUpdateDto):
     return db_product
 
 
-def update_product(session: Session, product_id: int, product: ProductCreateUpdateDto):
+def update_product(session: Session, product_id: int, product: ProductCreateUpdateDto) -> Product:
     db_product = session.scalar(select(Product).where(Product.product_id == product_id))
     if not db_product:
         raise HTTPException(

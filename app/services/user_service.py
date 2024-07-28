@@ -1,15 +1,15 @@
 from typing import Annotated
 
+from fastapi import Depends, Header, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from fastapi import HTTPException, status, Header, Depends
 
-from app.common.models import User
-from app.common.jwt_helper import verify_jwt, generate_jwt
-from app.common.schemas import LoginDto, RegisterDto
-from app.common.password_hasher import is_password_correct, hash_password
 from app.common.constants import RoleEnum
 from app.common.database import create_new_session
+from app.common.jwt_helper import generate_jwt, verify_jwt
+from app.common.models import User
+from app.common.password_hasher import hash_password, is_password_correct
+from app.common.schemas import LoginDto, RegisterDto
 
 
 def find_user_by_email(session: Session, email: str) -> User | None:
@@ -19,7 +19,7 @@ def find_user_by_email(session: Session, email: str) -> User | None:
 def get_current_user(
     authorization: Annotated[str | None, Header()] = None,
     session: Session = Depends(create_new_session),
-):
+) -> User:
     if not authorization:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Missing Authorization Token"
@@ -71,7 +71,7 @@ def handle_login(session: Session, login_dto: LoginDto) -> dict:
     }
 
 
-def handle_register(session: Session, register_dto: RegisterDto):
+def handle_register(session: Session, register_dto: RegisterDto) -> dict:
     user = find_user_by_email(session, register_dto.email)
     if user:
         raise HTTPException(

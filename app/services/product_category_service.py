@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.common.models import ProductCategory
-from app.common.schemas import ProductCategoryDto, ProductCategoryCreateDto
+from app.common.schemas import ProductCategoryCreateDto, ProductCategoryDto
 
 
 def create_product_category(

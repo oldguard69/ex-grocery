@@ -1,5 +1,5 @@
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, computed_field
 
 
 # region Product Category
@@ -60,3 +60,53 @@ class RegisterDto(BaseModel):
     email: str
     password: str
 # endregion User
+
+
+# region order
+class OrderItemCreateDto(BaseModel):
+    product_id: int
+    quantity: int
+
+
+class OrderCreateDto(BaseModel):
+    note: str
+    discount_id: int | None = None
+    items: list[OrderItemCreateDto]
+
+
+class OrderItemDto(BaseModel):
+    product: ProductDto
+    quantity: int
+    price: float
+
+
+class DiscountDto(BaseModel):
+    discount_id: int
+    percentage: float
+
+
+class OrderListDto(BaseModel):
+    order_id: int
+    note: str
+    discount: DiscountDto | None
+    total_items: int = 0
+    total_price: float = 0
+
+    class Config:
+        orm_mode: True
+
+    @computed_field
+    @property
+    def discount_price(self) -> float:
+        if self.discount:
+            return (self.discount.percentage/100) * self.total_price
+        return 0.0
+    
+    @computed_field
+    @property
+    def price(self) -> float:
+        return self.total_price - self.discount_price
+    
+
+class OrderDetailsDto(OrderListDto):
+    items: list[OrderItemDto]

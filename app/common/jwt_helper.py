@@ -1,6 +1,5 @@
 import os
-from datetime import datetime, timedelta, UTC
-from typing import Any
+from datetime import UTC, datetime, timedelta
 
 import jwt
 
@@ -14,16 +13,14 @@ def generate_jwt(
 
     payload_copy = payload.copy()
     payload_copy["exp"] = datetime.now(UTC) + timedelta(hours=1)
-    token = jwt.encode(payload_copy, secret_key, algorithm=algorithm)
-    return token
+    return jwt.encode(payload_copy, secret_key, algorithm=algorithm)
 
 
 def verify_jwt(
     token: str, secret_key: str = SECRET_KEY, algorithm: str = "HS256"
 ) -> dict:
     try:
-        decoded_token = jwt.decode(token, secret_key, algorithms=[algorithm])
-        return decoded_token
+        return jwt.decode(token, secret_key, algorithms=[algorithm])
     except jwt.ExpiredSignatureError:
         raise ValueError("Token has expired")
     except jwt.InvalidTokenError:
