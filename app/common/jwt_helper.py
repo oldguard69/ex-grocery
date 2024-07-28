@@ -19,9 +19,4 @@ def generate_jwt(
 def verify_jwt(
     token: str, secret_key: str = SECRET_KEY, algorithm: str = "HS256"
 ) -> dict:
-    try:
-        return jwt.decode(token, secret_key, algorithms=[algorithm])
-    except jwt.ExpiredSignatureError:
-        raise ValueError("Token has expired")
-    except jwt.InvalidTokenError:
-        raise ValueError("Invalid token")
+    return jwt.decode(token, secret_key, algorithms=[algorithm])

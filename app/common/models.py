@@ -1,22 +1,20 @@
-"""
-Define the ORM for models in the database
-"""
+"""Define the ORM for models in the database"""
 
 from sqlalchemy import (
+    Boolean,
+    DateTime,
+    Float,
+    ForeignKey,
     Integer,
     String,
-    ForeignKey,
-    Boolean,
     Text,
-    Float,
-    DateTime,
-    func,
     false,
-    literal
+    func,
+    literal,
 )
-from sqlalchemy.orm import relationship, mapped_column, Mapped
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .database import Base
+from app.common.database import Base
 
 
 class Role(Base):
@@ -31,9 +29,7 @@ class Department(Base):
     description: Mapped[str] = mapped_column(String)
 
     users: Mapped["User"] = relationship(
-        secondary="user_departments",
-        back_populates="departments",
-        viewonly=True
+        secondary="user_departments", back_populates="departments", viewonly=True
     )
 
 
@@ -44,14 +40,14 @@ class User(Base):
     hashed_password: Mapped[str] = mapped_column(String)
     role_id: Mapped[int] = mapped_column(Integer, ForeignKey("roles.role_id"))
     email_verified: Mapped[bool] = mapped_column(Boolean, server_default=false())
-    success_order_count: Mapped[int] = mapped_column(Integer, server_default=literal("0"))
+    success_order_count: Mapped[int] = mapped_column(
+        Integer, server_default=literal("0")
+    )
     created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now())
 
     role: Mapped[Role] = relationship("Role")
     departments: Mapped[list[Department]] = relationship(
-        secondary="user_departments",
-        back_populates="users",
-        viewonly=True
+        secondary="user_departments", back_populates="users", viewonly=True
     )
 
 
@@ -91,7 +87,7 @@ class ProductCategory(Base):
     products: Mapped[list["Product"]] = relationship(
         secondary="product_product_categories",
         back_populates="product_categories",
-        viewonly=True
+        viewonly=True,
     )
 
 
@@ -100,14 +96,13 @@ class Product(Base):
     product_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String)
     description: Mapped[str] = mapped_column(Text)
-    price: Mapped[int] = mapped_column(Integer)
+    price: Mapped[float] = mapped_column(Float)
     created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now())
-    
+
     product_categories: Mapped[list["ProductCategory"]] = relationship(
-        secondary="product_product_categories",
-        back_populates="products",
-        viewonly=True
+        secondary="product_product_categories", back_populates="products", viewonly=True
     )
+
 
 class ProductProductCategory(Base):
     __tablename__ = "product_product_categories"
@@ -162,4 +157,3 @@ class Discount(Base):
 
     product_category: Mapped[ProductCategory] = relationship("ProductCategory")
     customer_category: Mapped[CustomerCategory] = relationship("CustomerCategory")
-

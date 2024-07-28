@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from pydantic import BaseModel, computed_field
 
 
@@ -14,6 +15,8 @@ class ProductCategoryDto(BaseModel):
 
     class Config:
         orm_mode: True
+
+
 # endregion
 
 
@@ -35,6 +38,8 @@ class ProductDto(BaseModel):
 
     class Config:
         orm_mode: True
+
+
 # endregion
 
 
@@ -59,6 +64,8 @@ class LoginDto(BaseModel):
 class RegisterDto(BaseModel):
     email: str
     password: str
+
+
 # endregion User
 
 
@@ -99,14 +106,14 @@ class OrderListDto(BaseModel):
     @property
     def discount_price(self) -> float:
         if self.discount:
-            return (self.discount.percentage/100) * self.total_price
+            return (self.discount.percentage / 100) * self.total_price
         return 0.0
-    
+
     @computed_field
     @property
     def price(self) -> float:
         return self.total_price - self.discount_price
-    
+
 
 class OrderDetailsDto(OrderListDto):
     items: list[OrderItemDto]

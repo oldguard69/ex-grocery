@@ -1,5 +1,6 @@
 from typing import Annotated
 
+import jwt
 from fastapi import Depends, Header, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -31,10 +32,13 @@ def get_current_user(
     try:
         token = authorization.split(" ")[1]
         decoded_token = verify_jwt(token)
-    except Exception as e:
-        print(e)
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid Token"
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(  # noqa: B904
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Token has expired"
+        )
+    except (jwt.InvalidTokenError, Exception):
+        raise HTTPException(  # noqa: B904
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token"
         )
 
     user = session.scalar(select(User).where(User.email == decoded_token["email"]))
