@@ -44,6 +44,11 @@ class ProductDto(BaseModel):
 
 
 # region User
+class DepartmentDto(BaseModel):
+    department_id: int
+    description: str
+
+
 class RoleDto(BaseModel):
     role_id: int
     description: str
@@ -54,6 +59,7 @@ class UserDto(BaseModel):
     email: str
     role: RoleDto
     success_order_count: int
+    departments: list[DepartmentDto]
 
 
 class LoginDto(BaseModel):

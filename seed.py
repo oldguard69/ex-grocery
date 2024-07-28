@@ -49,7 +49,7 @@ with new_session() as session:
         [
             ProductProductCategory(product_id=1, category_id=1),
             ProductProductCategory(product_id=1, category_id=2),
-            ProductProductCategory(product_id=2, category_id=1),
+            ProductProductCategory(product_id=2, category_id=4),
             ProductProductCategory(product_id=3, category_id=3),
         ]
     )
@@ -98,3 +98,17 @@ with new_session() as session:
         ]
     )
     session.commit()
+
+"""
+user 1 => department={1, 2}
+user 2 => department={1}
+
+product 1 => category={1, 2}
+product 2 => category={4}
+product 3 => category={3}
+
+category 1 => department 1
+category 2 => department 1
+category 3 => department 2
+category 4 => department 3
+"""

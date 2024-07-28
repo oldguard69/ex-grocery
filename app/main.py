@@ -49,9 +49,10 @@ def list_product_categories(
 @app.post("/product-categories/")
 def create_product_category(
     product_category: schemas.ProductCategoryCreateDto,
+    user: Annotated[models.User, Depends(user_service.get_current_user)],
     session: Session = Depends(create_new_session),
 ) -> None:
-    product_category_service.create_product_category(session, product_category)
+    product_category_service.create_product_category(session, product_category, user)
 
 
 @app.get("/products/", response_model=list[schemas.ProductDto])
@@ -72,18 +73,20 @@ def get_product(
 @app.post("/products/", response_model=schemas.ProductDto)
 def create_product(
     product: schemas.ProductCreateUpdateDto,
+    user: Annotated[models.User, Depends(user_service.get_current_user)],
     session: Session = Depends(create_new_session),
 ) -> models.Product:
-    return product_service.create_product(session, product)
+    return product_service.create_product(session, product, user)
 
 
 @app.put("/products/{product_id}", response_model=schemas.ProductDto)
 def update_product(
     product_id: int,
     product: schemas.ProductCreateUpdateDto,
+    user: Annotated[models.User, Depends(user_service.get_current_user)],
     session: Session = Depends(create_new_session),
 ) -> models.Product:
-    return product_service.update_product(session, product_id, product)
+    return product_service.update_product(session, product_id, product, user)
 
 
 @app.post("/orders/", response_model=schemas.OrderDetailsDto)
@@ -91,7 +94,7 @@ def create_order(
     order: schemas.OrderCreateDto,
     current_user: Annotated[models.User, Depends(user_service.get_current_user)],
     session: Session = Depends(create_new_session),
-)  -> models.Order:
+) -> models.Order:
     return order_service.create_order(session, current_user, order)
 
 
@@ -99,7 +102,7 @@ def create_order(
 def list_orders(
     current_user: Annotated[models.User, Depends(user_service.get_current_user)],
     session: Session = Depends(create_new_session),
-)  -> list[models.Order]:
+) -> list[models.Order]:
     return order_service.list_order(session, current_user)
 
 
@@ -108,5 +111,5 @@ def get_order(
     order_id: int,
     current_user: Annotated[models.User, Depends(user_service.get_current_user)],
     session: Session = Depends(create_new_session),
-)  -> models.Order:
+) -> models.Order:
     return order_service.get_order(session, current_user, order_id)

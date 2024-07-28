@@ -3,6 +3,8 @@ from sqlalchemy import Select, func, select
 from sqlalchemy.orm import Session
 
 from app.common.models import Discount, Order, OrderItem, Product, User
+from app.common.permissions import is_customer
+from app.common.responses import FORBIDDEN_RESPONSE
 from app.common.schemas import OrderCreateDto
 
 
@@ -17,6 +19,9 @@ def create_order(session: Session, current_user: User, order: OrderCreateDto) ->
     - Change the user category when order success.
 
     """
+    if not is_customer(current_user):
+        raise FORBIDDEN_RESPONSE
+
     if not order.items:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Order don't have any items"
