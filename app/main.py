@@ -32,6 +32,23 @@ def login(
     return user_service.handle_login(session, register_dto)
 
 
+@app.get("/email-verification")
+def send_email_verification_email(
+    user: Annotated[models.User, Depends(user_service.get_current_user)],
+    session: Session = Depends(create_new_session),
+) -> dict:
+    return user_service.send_verification_email(session, user)
+
+
+@app.post("/email-verification")
+def verify_email(
+    body: schemas.VerifyEmailDto,
+    user: Annotated[models.User, Depends(user_service.get_current_user)],
+    session: Session = Depends(create_new_session),
+) -> dict:
+    return user_service.verify_email(session, user, body)
+
+
 @app.get("/user/", response_model=schemas.UserDto)
 def get_user(
     user: Annotated[models.User, Depends(user_service.get_current_user)],

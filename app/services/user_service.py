@@ -1,3 +1,4 @@
+from datetime import UTC, datetime, timedelta
 from typing import Annotated
 
 import jwt
@@ -9,8 +10,9 @@ from app.common.constants import RoleEnum
 from app.common.database import create_new_session
 from app.common.jwt_helper import generate_jwt, verify_jwt
 from app.common.models import User
+from app.common.otp_manager import OtpManager
 from app.common.password_hasher import hash_password, is_password_correct
-from app.common.schemas import LoginDto, RegisterDto
+from app.common.schemas import LoginDto, RegisterDto, VerifyEmailDto
 
 
 def find_user_by_email(session: Session, email: str) -> User | None:
@@ -23,7 +25,8 @@ def get_current_user(
 ) -> User:
     if not authorization:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Missing Authorization Token"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Missing Authorization Token",
         )
     if not authorization.startswith("Bearer"):
         raise HTTPException(
@@ -45,6 +48,11 @@ def get_current_user(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found"
+        )
+
+    if not user.email_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Email has not verified"
         )
     return user
 
@@ -87,7 +95,45 @@ def handle_register(session: Session, register_dto: RegisterDto) -> dict:
             email=register_dto.email,
             hashed_password=hash_password(register_dto.password),
             role_id=RoleEnum.CUSTOMER,
+            otp_secret=OtpManager.generate_secret(),
         )
     )
     session.commit()
     return {"message": "success"}
+
+
+def send_verification_email(session: Session, user: User) -> dict:
+    if user.email_verified:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You are already verified the email",
+        )
+    if not user.otp_secret:
+        user.otp_secret = OtpManager.generate_secret()
+
+    otp_manager = OtpManager(user.otp_secret)
+    user.otp_random_int = otp_manager.generate_random_integer()
+    otp = otp_manager.generate_otp(user.otp_random_int)
+    print(f"Send this otp to user: {otp}")
+    user.otp_expired_at = datetime.now(UTC) + timedelta(seconds=30)
+    session.add(user)
+    session.commit()
+    return {"message": "Email sent"}
+
+
+def verify_email(session: Session, user: User, body: VerifyEmailDto) -> dict:
+    otp_manager = OtpManager(user.otp_secret)
+    is_otp_valid = otp_manager.verify_otp(body.otp, user.otp_random_int)
+    is_otp_expired = user.otp_expired_at < datetime.now(UTC)
+    if is_otp_valid and not is_otp_expired:
+        user.otp_random_int = None
+        user.otp_expired_at = None
+        user.email_verified = True
+        session.add(user)
+        session.commit()
+        return {"message": "Email verified"}
+    if not is_otp_valid:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid otp"
+        )
+    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Otp expired")

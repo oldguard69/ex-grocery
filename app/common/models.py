@@ -1,4 +1,5 @@
 """Define the ORM for models in the database"""
+from datetime import datetime
 
 from sqlalchemy import (
     Boolean,
@@ -43,6 +44,9 @@ class User(Base):
     success_order_count: Mapped[int] = mapped_column(
         Integer, server_default=literal("0")
     )
+    otp_secret: Mapped[str | None] = mapped_column(String, nullable=True)
+    otp_expired_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    otp_random_int: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now())
 
     role: Mapped[Role] = relationship("Role")

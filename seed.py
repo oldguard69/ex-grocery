@@ -38,19 +38,16 @@ with new_session() as session:
             ProductCategory(category_id=4, name="Cake and Candy", department_id=3),
         ]
     )
+    product_1 = Product(name="Coffee", price="68.79", description="")
+    product_2 = Product(name="Noddle", price="39", description="")
+    product_3 = Product(name="Hammer", price="20", description="")
+    session.add_all([product_1, product_2, product_3])
     session.add_all(
         [
-            Product(product_id=1, name="Coffee", price="68.79", description=""),
-            Product(product_id=2, name="Noddle", price="39", description=""),
-            Product(product_id=3, name="Hammer", price="20", description=""),
-        ]
-    )
-    session.add_all(
-        [
-            ProductProductCategory(product_id=1, category_id=1),
-            ProductProductCategory(product_id=1, category_id=2),
-            ProductProductCategory(product_id=2, category_id=4),
-            ProductProductCategory(product_id=3, category_id=3),
+            ProductProductCategory(product=product_1, category_id=1),
+            ProductProductCategory(product=product_1, category_id=2),
+            ProductProductCategory(product=product_2, category_id=4),
+            ProductProductCategory(product=product_3, category_id=3),
         ]
     )
     session.add_all(
@@ -74,34 +71,36 @@ with new_session() as session:
             Discount(percentage=10, product_category_id=3, customer_category_id=1),
         ]
     )
-    session.add_all(
-        [
-            User(
-                user_id=1,
-                email="staff1@gmail.com",
-                hashed_password=hash_password("abc@123"),
-                role_id=RoleEnum.STAFF,
-            ),
-            User(
-                user_id=2,
-                email="staff2@gmail.com",
-                hashed_password=hash_password("abc@123"),
-                role_id=RoleEnum.STAFF,
-            ),
-        ]
+    user_1 = User(
+        email="staff1@gmail.com",
+        hashed_password=hash_password("abc@123"),
+        role_id=RoleEnum.STAFF,
     )
+    user_2 = User(
+        email="staff2@gmail.com",
+        hashed_password=hash_password("abc@123"),
+        role_id=RoleEnum.STAFF,
+    )
+    user_3 = User(
+        email="customer@gmail.com",
+        hashed_password=hash_password("abc@123"),
+        role_id=RoleEnum.CUSTOMER,
+    )
+    session.add_all([user_1, user_2, user_3])
     session.add_all(
         [
-            UserDepartment(user_id=1, department_id=1),
-            UserDepartment(user_id=1, department_id=2),
-            UserDepartment(user_id=2, department_id=1),
+            UserDepartment(user=user_1, department_id=1),
+            UserDepartment(user=user_1, department_id=2),
+            UserDepartment(user=user_2, department_id=1),
+            UserDepartment(user=user_3, department_id=3),
         ]
     )
     session.commit()
 
 """
-user 1 => department={1, 2}
-user 2 => department={1}
+staff 1 => department={1, 2}
+staff 2 => department={1}
+customer => department={3}
 
 product 1 => category={1, 2}
 product 2 => category={4}
@@ -109,6 +108,6 @@ product 3 => category={3}
 
 category 1 => department 1
 category 2 => department 1
-category 3 => department 2
+category 3 => department 2  (staff 1 can modify, but not staff 2)
 category 4 => department 3
 """

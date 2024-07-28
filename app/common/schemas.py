@@ -60,6 +60,7 @@ class UserDto(BaseModel):
     role: RoleDto
     success_order_count: int
     departments: list[DepartmentDto]
+    email_verified: bool
 
 
 class LoginDto(BaseModel):
@@ -70,6 +71,10 @@ class LoginDto(BaseModel):
 class RegisterDto(BaseModel):
     email: str
     password: str
+
+
+class VerifyEmailDto(BaseModel):
+    otp: str
 
 
 # endregion User
