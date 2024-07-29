@@ -75,11 +75,13 @@ with new_session() as session:
         email="staff1@gmail.com",
         hashed_password=hash_password("abc@123"),
         role_id=RoleEnum.STAFF,
+        email_verified=True,
     )
     user_2 = User(
         email="staff2@gmail.com",
         hashed_password=hash_password("abc@123"),
         role_id=RoleEnum.STAFF,
+        email_verified=True,
     )
     user_3 = User(
         email="customer@gmail.com",
@@ -98,13 +100,25 @@ with new_session() as session:
     session.commit()
 
 """
-staff 1 => department={1, 2}
-staff 2 => department={1}
+staff 1
+=> department={1, 2}
+=> discount={1, 2, 3, 4}
+=> product={1, 3}
+=> product category={1, 2, 3}
+
+staff 2
+=> department={1}
+=> discount={1, 2, 3}
+=> product={1}
+=> product category={1, 2}
+
 customer => department={3}
+
 
 product 1 => category={1, 2}
 product 2 => category={4}
 product 3 => category={3}
+
 
 category 1 => department 1
 category 2 => department 1

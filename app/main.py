@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.common import models, schemas
 from app.common.database import create_new_session, engine
 from app.services import (
+    discount_service,
     order_service,
     product_category_service,
     product_service,
@@ -139,3 +140,32 @@ def get_order(
     session: Session = Depends(create_new_session),
 ) -> models.Order:
     return order_service.get_order(session, current_user, order_id)
+
+
+@app.get("/discounts", response_model=list[schemas.DiscountDto])
+def list_discount(
+    current_user: Annotated[models.User, Depends(user_service.get_current_user)],
+    session: Session = Depends(create_new_session),
+) -> list[models.Discount]:
+    return discount_service.list_discount(session, current_user)
+
+
+@app.post("/discounts", response_model=schemas.DiscountDto)
+def create_discount(
+    discount: schemas.DiscountCreateUpdateDto,
+    current_user: Annotated[models.User, Depends(user_service.get_current_user)],
+    session: Session = Depends(create_new_session),
+) -> models.Discount:
+    return discount_service.create_discount(session, discount, current_user)
+
+
+@app.put("/discounts/{discount_id}", response_model=schemas.DiscountDto)
+def update_discount(
+    discount_id: int,
+    discount: schemas.DiscountCreateUpdateDto,
+    current_user: Annotated[models.User, Depends(user_service.get_current_user)],
+    session: Session = Depends(create_new_session),
+) -> models.Discount:
+    return discount_service.update_discount(
+        session, discount_id, discount, current_user
+    )
