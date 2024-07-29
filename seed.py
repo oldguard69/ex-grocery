@@ -53,13 +53,13 @@ with new_session() as session:
     session.add_all(
         [
             CustomerCategory(
-                category_id=1, name="Bronze", lower_bound=0, upper_bound=20
+                category_id=1, name="Bronze", lower_bound=0, upper_bound=5
             ),
             CustomerCategory(
-                category_id=2, name="Silver", lower_bound=21, upper_bound=40
+                category_id=2, name="Silver", lower_bound=6, upper_bound=20
             ),
             CustomerCategory(
-                category_id=3, name="Gold", lower_bound=41, upper_bound=None
+                category_id=3, name="Gold", lower_bound=21, upper_bound=None
             ),
         ]
     )

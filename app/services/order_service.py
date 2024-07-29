@@ -1,11 +1,32 @@
 from fastapi import HTTPException, status
-from sqlalchemy import Select, func, select
+from sqlalchemy import Select, func, or_, select
 from sqlalchemy.orm import Session
 
-from app.common.models import Discount, Order, OrderItem, Product, User
+from app.common.models import (
+    CustomerCategory,
+    Discount,
+    Order,
+    OrderItem,
+    Product,
+    User,
+)
 from app.common.permissions import is_customer
 from app.common.responses import FORBIDDEN_RESPONSE
 from app.common.schemas import OrderCreateDto
+
+
+def _map_success_order_count_to_customer_category(
+    session: Session, user: User
+) -> CustomerCategory:
+    return session.scalar(
+        select(CustomerCategory.category_id).where(
+            or_(
+                user.success_order_count <= CustomerCategory.upper_bound,
+                CustomerCategory.upper_bound.is_(None),
+            ),
+            user.success_order_count >= CustomerCategory.lower_bound,
+        )
+    )
 
 
 def create_order(session: Session, current_user: User, order: OrderCreateDto) -> Order:
@@ -63,6 +84,9 @@ def create_order(session: Session, current_user: User, order: OrderCreateDto) ->
             )
         )
     current_user.success_order_count += 1
+    current_user.customer_category_id = _map_success_order_count_to_customer_category(
+        session, current_user
+    )
     session.add(current_user)
     session.commit()
     session.refresh(db_order)

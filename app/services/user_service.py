@@ -19,7 +19,7 @@ def find_user_by_email(session: Session, email: str) -> User | None:
     return session.scalar(select(User).where(User.email == email))
 
 
-def get_current_user(
+def get_current_user_without_email_verified_require(
     authorization: Annotated[str | None, Header()] = None,
     session: Session = Depends(create_new_session),
 ) -> User:
@@ -49,7 +49,14 @@ def get_current_user(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found"
         )
+    return user
 
+
+def get_current_user(
+    authorization: Annotated[str | None, Header()] = None,
+    session: Session = Depends(create_new_session),
+) -> User:
+    user = get_current_user_without_email_verified_require(authorization, session)
     if not user.email_verified:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Email has not verified"

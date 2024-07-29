@@ -1,4 +1,5 @@
 """Define the ORM for models in the database"""
+
 from datetime import datetime
 
 from sqlalchemy import (
@@ -12,6 +13,7 @@ from sqlalchemy import (
     false,
     func,
     literal,
+    true,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -44,8 +46,13 @@ class User(Base):
     success_order_count: Mapped[int] = mapped_column(
         Integer, server_default=literal("0")
     )
+    customer_category_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("customer_categories.category_id"), nullable=True
+    )
     otp_secret: Mapped[str | None] = mapped_column(String, nullable=True)
-    otp_expired_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    otp_expired_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     otp_random_int: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now())
 
@@ -53,6 +60,7 @@ class User(Base):
     departments: Mapped[list[Department]] = relationship(
         secondary="user_departments", back_populates="users", viewonly=True
     )
+    customer_category: Mapped["CustomerCategory"] = relationship()
 
 
 class UserDepartment(Base):
@@ -158,6 +166,7 @@ class Discount(Base):
     customer_category_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("customer_categories.category_id")
     )
+    is_active: Mapped[bool] = mapped_column(Boolean, default=true())
 
     product_category: Mapped[ProductCategory] = relationship("ProductCategory")
     customer_category: Mapped[CustomerCategory] = relationship("CustomerCategory")

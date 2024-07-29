@@ -44,6 +44,11 @@ class ProductDto(BaseModel):
 
 
 # region User
+class CustomerCategoryDto(BaseModel):
+    category_id: int
+    name: str
+
+
 class DepartmentDto(BaseModel):
     department_id: int
     description: str
@@ -61,6 +66,7 @@ class UserDto(BaseModel):
     success_order_count: int
     departments: list[DepartmentDto]
     email_verified: bool
+    customer_category: CustomerCategoryDto | None
 
 
 class LoginDto(BaseModel):
@@ -128,3 +134,20 @@ class OrderListDto(BaseModel):
 
 class OrderDetailsDto(OrderListDto):
     items: list[OrderItemDto]
+# endregion
+
+
+# region Discount
+class DiscountDto(BaseModel):
+    discount_id: int
+    percentage: float
+    is_active: bool
+    product_category: ProductCategoryDto
+    customer_category: CustomerCategoryDto
+
+
+class DiscountCreateUpdateDto(BaseModel):
+    percentage: float
+    product_category_id: int
+    customer_category_id: int
+    is_active: bool = True
