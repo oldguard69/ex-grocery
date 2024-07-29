@@ -11,7 +11,8 @@ db_user = os.environ["DB_USER"]
 db_name = os.environ["DB_NAME"]
 db_host = os.environ["DB_HOST"]
 db_pwd = os.environ["DB_PASSWORD"]
-DATABASE_URL = f"postgresql://{db_user}:{db_pwd}@{db_host}:5432/{db_name}"
+db_port = os.environ["DB_PORT"]
+DATABASE_URL = f"postgresql://{db_user}:{db_pwd}@{db_host}:{db_port}/{db_name}"
 
 engine = create_engine(DATABASE_URL)
 new_session = sessionmaker(autocommit=False, autoflush=False, bind=engine)

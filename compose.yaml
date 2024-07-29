@@ -13,6 +13,7 @@ services:
       DB_NAME: ${DB_NAME}
       DB_HOST: db
       SECRET_KEY: ${SECRET_KEY}
+      DB_PORT: 5432
     depends_on:
       - db
   db:
